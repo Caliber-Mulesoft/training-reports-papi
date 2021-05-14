@@ -72,6 +72,7 @@ payload]]></ee:set-variable>
 		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="notesWithSkills" doc:id="687817d6-aa5a-4e2e-91c7-60af485dc8f1" variableName="notesWithSkills" />
 		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="assessments" doc:id="13cd11f3-6ab3-483b-a392-7a8feb7a9e33" variableName="assessments"/>
 		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="assessmentsWithSkills" doc:id="cd4eac54-c80a-4f5b-b981-b0bd613da417" variableName="assessmentsWithSkills"/>
+		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="assessmentsComplete" doc:id="312a4006-996b-4bb7-856d-ca48d6b66f58" variableName="assessmentsComplete"/>
 		<foreach doc:name="For Each" doc:id="c75369da-6eac-42f9-bee9-cd0ef41b5a14" collection="#[vars.batchIds]">
 			<scatter-gather doc:name="Scatter-Gather" doc:id="c62dea74-0feb-4acf-b2cb-b7cc7250eb06" >
 				<route >
@@ -125,7 +126,7 @@ vars."batch-info" ++ payload]]></ee:set-variable>
 					<ee:set-variable variableName="output" ><![CDATA[%dw 2.0
 output application/dw
 ---
-vars."batch-info" ++ {qcNotes: vars.notesWithSkills} ++ {assessments: vars.assessments}]]></ee:set-variable>
+vars."batch-info" ++ {qcNotes: vars.notesWithSkills} ++ {assessments: vars.assessmentsWithSkills}]]></ee:set-variable>
 				</ee:variables>
 			</ee:transform>
 		</foreach>
@@ -248,8 +249,29 @@ output application/dw
 vars.assessmentsWithSkills << (vars.assessments[(vars.counter - 1)] ++ {skillCategory: payload.skillCategory})]]></ee:set-variable>
 				</ee:variables>
 			</ee:transform>
+			<set-payload value="#[%dw 2.0&#10;output application/dw&#10;---&#10;vars.assessmentsWithSkills[vars.counter - 1]]" doc:name="Set Payload" doc:id="b719a91b-23f4-4bcd-a4b2-6690ff7d42f5" />
+			<flow-ref doc:name="get-average" doc:id="3755dc7a-de79-4189-b823-e46b697e9bdd" name="get-average"/>
 		</foreach>
 		<logger level="INFO" doc:name="Logger" doc:id="38636b71-59ec-44a3-b5b4-36510c30f958" />
+	</flow>
+	<flow name="get-average" doc:id="0be7399f-3e3a-46d9-a3c5-beb20d190007" >
+		<http:request method="GET" doc:name="GET /average" doc:id="bc56f998-e7b1-4f2b-aa61-856e719960d3" config-ref="caliber_HTTP_Request_configuration1" path="${get-average.path}">
+				<http:query-params><![CDATA[#[output application/java
+---
+{
+	"assessment" : payload.assessmentId
+}]]]></http:query-params>
+			</http:request>
+		<ee:transform doc:name="add average to assessment" doc:id="496d7234-63de-45d3-a9d7-7387a06d6241" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="assessmentsComplete" ><![CDATA[%dw 2.0
+output application/dw
+---
+vars.assessmentsComplete << (vars.assessmentsWithSkills[(vars.counter - 1)] ++ {average: payload})]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
 	</flow>
 	<flow name="get-assessment-category" doc:id="5c6b3119-92a1-42e1-a1e9-1f21fb1c7083" >
 		<http:request method="GET" doc:name="GET /assessment-category" doc:id="32fb5605-a8e6-47f6-874a-a56b9f0b381f" config-ref="category_HTTP_Request_configuration1" path="${get-assessment-category.path}/{id}">

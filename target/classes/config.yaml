@@ -26,3 +26,6 @@ get-assessment:
 get-assessment-category:
   basepath: "/mock/category"
   path: "/category"
+  
+get-average:
+  path: "/grades/average"
