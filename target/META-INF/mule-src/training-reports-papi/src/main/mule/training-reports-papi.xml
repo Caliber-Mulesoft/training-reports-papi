@@ -71,6 +71,7 @@ payload]]></ee:set-variable>
 		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="qcNotes" doc:id="82d24e00-c848-44a4-88f4-00068c54e6a9" variableName="qcNotes" />
 		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="notesWithSkills" doc:id="687817d6-aa5a-4e2e-91c7-60af485dc8f1" variableName="notesWithSkills" />
 		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="assessments" doc:id="13cd11f3-6ab3-483b-a392-7a8feb7a9e33" variableName="assessments"/>
+		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="assessmentsWithSkills" doc:id="cd4eac54-c80a-4f5b-b981-b0bd613da417" variableName="assessmentsWithSkills"/>
 		<foreach doc:name="For Each" doc:id="c75369da-6eac-42f9-bee9-cd0ef41b5a14" collection="#[vars.batchIds]">
 			<scatter-gather doc:name="Scatter-Gather" doc:id="c62dea74-0feb-4acf-b2cb-b7cc7250eb06" >
 				<route >
@@ -138,13 +139,8 @@ vars."batch-info" ++ {qcNotes: vars.notesWithSkills} ++ {assessments: vars.asses
 	"batchId" : payload
 }]]]></http:uri-params>
 		</http:request>
-		<ee:transform doc:name="Transform Message" doc:id="2ebb93d9-7d45-4601-a0d9-cfa0f6b008f5" >
+		<ee:transform doc:name="vars.qcNotes" doc:id="2ebb93d9-7d45-4601-a0d9-cfa0f6b008f5" >
 			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
-output application/java
----
-{
-}]]></ee:set-payload>
 			</ee:message>
 			<ee:variables >
 				<ee:set-variable variableName="qcNotes" ><![CDATA[%dw 2.0
@@ -221,9 +217,11 @@ vars.notesWithSkills << (vars.qcNotes[(vars.counter - 1)] ++ {categories: payloa
 	"batchId" : payload
 }]]]></http:query-params>
 		</http:request>
-		<ee:transform doc:name="mapping payload" doc:id="54c8c0c1-f824-4bb4-8d85-0280e283518b">
+		<ee:transform doc:name="mapping payload to vars.assessments" doc:id="54c8c0c1-f824-4bb4-8d85-0280e283518b">
 			<ee:message>
-				<ee:set-payload ><![CDATA[%dw 2.0
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="assessments" ><![CDATA[%dw 2.0
 output application/dw
 ---
 payload map{
@@ -235,22 +233,33 @@ payload map{
 	batchId: $.batchId,
 	assessmentCategory: $.assessmentCategory,
 	assignmentDate: $.assignmentDate
-}]]></ee:set-payload>
-			</ee:message>
-			<ee:variables>
+}]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<ee:transform doc:name="Transform Message" doc:id="5a9b929f-84b6-4b11-a343-3420eb583014" >
-			<ee:message >
-			</ee:message>
-			<ee:variables >
-				<ee:set-variable variableName="assessments" ><![CDATA[%dw 2.0
+		<foreach doc:name="For Each" doc:id="a02601dc-83e7-4ad7-89e2-cc03d298f861" collection="#[vars.assessments]">
+			<flow-ref doc:name="get-assessment-category" doc:id="7291e405-5f62-4ad9-aece-b78b288dc857" name="get-assessment-category" />
+			<ee:transform doc:name="add skills to assessments" doc:id="ae0dd9b2-5381-4b9f-bbd8-5ebc3f4743ff">
+				<ee:message>
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="assessmentsWithSkills" ><![CDATA[%dw 2.0
 output application/dw
 ---
-vars.assessments << payload]]></ee:set-variable>
-			</ee:variables>
-		</ee:transform>
+vars.assessmentsWithSkills << (vars.assessments[(vars.counter - 1)] ++ {skillCategory: payload.skillCategory})]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</foreach>
 		<logger level="INFO" doc:name="Logger" doc:id="38636b71-59ec-44a3-b5b4-36510c30f958" />
+	</flow>
+	<flow name="get-assessment-category" doc:id="5c6b3119-92a1-42e1-a1e9-1f21fb1c7083" >
+		<http:request method="GET" doc:name="GET /assessment-category" doc:id="32fb5605-a8e6-47f6-874a-a56b9f0b381f" config-ref="category_HTTP_Request_configuration1" path="${get-assessment-category.path}/{id}">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"id" : payload.assessmentCategory
+}]]]></http:uri-params>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="76d2d072-e349-4dca-9466-dc145eb56c6d" />
 	</flow>
 
 </mule>

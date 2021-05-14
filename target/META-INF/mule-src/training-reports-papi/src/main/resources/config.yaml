@@ -22,3 +22,7 @@ get-assessment:
   basepath: "/mock/evaluation"
   path: "/assessments"
   protocol: "HTTPS"
+  
+get-assessment-category:
+  basepath: "/mock/category"
+  path: "/category"

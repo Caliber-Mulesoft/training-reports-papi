@@ -13,5 +13,8 @@ http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/cu
 		<http:request-connection protocol="${get-assessment.protocol}" host="${get-assessment.host}" port="${get-assessment.port}" />
 	</http:request-config>
 	<os:object-store name="Object_store" doc:name="Object store" doc:id="9dd0151f-60aa-484b-b353-208b72263e17" persistent="false" />
+	<http:request-config name="category_HTTP_Request_configuration1" doc:name="HTTP Request configuration" doc:id="90fe8c72-e937-42a8-97e0-c42c4b373882" basePath="${get-assessment-category.basepath}" >
+		<http:request-connection protocol="${get-assessment.protocol}" host="${get-assessment.host}" port="${get-assessment.port}" />
+	</http:request-config>
 
 </mule>

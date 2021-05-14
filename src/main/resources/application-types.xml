@@ -19,4 +19,5 @@ type data = {|
 ]]></types:shape>
     </types:type>
   </types:catalog>
+  <types:enrichment select="#2ebb93d9-7d45-4601-a0d9-cfa0f6b008f5"/>
 </types:mule>
