@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
-	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:qc-system-api="http://www.mulesoft.org/schema/mule/qc-system-api" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
-http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/qc-system-api http://www.mulesoft.org/schema/mule/qc-system-api/current/mule-qc-system-api.xsd">
+	<qc-system-api:config name="QC_System_API_Config" doc:name="QC System API Config" doc:id="a1a82c83-0607-4931-981a-43c0eb907cf7" />
 	<flow name="get-report-by-email" doc:id="289c8b5c-c8ac-419b-bb58-1218ab0e1f8b" >
 		<scatter-gather doc:name="Scatter-Gather" doc:id="4e42e9e1-aeb8-4b12-97b4-48c5267a9ad9" >
 			<route >
@@ -126,7 +128,7 @@ vars."batch-info" ++ payload]]></ee:set-variable>
 					<ee:set-variable variableName="output" ><![CDATA[%dw 2.0
 output application/dw
 ---
-vars."batch-info" ++ {qcNotes: vars.notesWithSkills} ++ {assessments: vars.assessmentsWithSkills}]]></ee:set-variable>
+vars."batch-info" ++ {qcNotes: vars.notesWithSkills} ++ {assessments: vars.assessmentsComplete}]]></ee:set-variable>
 				</ee:variables>
 			</ee:transform>
 		</foreach>
@@ -200,14 +202,7 @@ vars.notesWithSkills << (vars.qcNotes[(vars.counter - 1)] ++ {categories: payloa
 		<logger level="INFO" doc:name="Logger" doc:id="d869b149-47a7-42bb-af72-fa57d0f3b65e" message='#["outOfForEach": payload]'/>
 	</flow>
 	<flow name="get-category" doc:id="014322cb-11e3-4294-9a8e-302352666117" >
-		<http:request method="GET" doc:name="GET /category" doc:id="b13c5351-a59c-4d6f-81a3-e1f4c671ce87" config-ref="HTTP_Request_configuration" path="${get-category.path}">
-			<http:query-params ><![CDATA[#[output application/java
----
-{
-	"batchId" : payload.batchId,
-	"week" : payload.week
-}]]]></http:query-params>
-		</http:request>
+		<qc-system-api:get-category-by-batch-id-and-week doc:name="Get Category By Batch ID and Week" doc:id="e4d6e458-5880-47ca-bb4e-ad40174ea68e" config-ref="QC_System_API_Config" batch-id="#[payload.batchId]" week="#[payload.week]"/>
 		<logger level="INFO" doc:name="Logger" doc:id="9dff8bf5-e90a-4a02-aff4-1b22fd048e47" message='#["skill": payload.skillCategory]'/>
 	</flow>
 	<flow name="get-assessments" doc:id="dcf8a60f-f9aa-45b5-bc6b-8eb0798805e8" >

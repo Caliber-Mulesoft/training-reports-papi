@@ -61,6 +61,12 @@
 			<version>1.1.7</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
+		<dependency>
+			<groupId>202383ba-8a30-47f2-a9af-40a59ffe741f</groupId>
+			<artifactId>mule-plugin-qc-system-api</artifactId>
+			<version>1.0.6</version>
+			<classifier>mule-plugin</classifier>
+		</dependency>
 	</dependencies>
 
 	<repositories>
