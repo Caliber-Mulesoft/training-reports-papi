@@ -176,12 +176,15 @@ output application/dw
 			</os:retrieve>
 			<choice doc:name="Choice" doc:id="9282888d-0c60-4c74-8c35-f349c607e769" >
 				<when expression="#[payload is String]">
-					<set-payload value="#[skillCategory: payload]" doc:name="assign skill to payload" doc:id="6114e89e-9072-40ba-b4d3-23e2a511c394" />
+					<set-payload value="#[%dw 2.0&#10;output application/json&#10;---&#10;[{skillCategory: payload}]]" doc:name="assign skill to payload" doc:id="6114e89e-9072-40ba-b4d3-23e2a511c394" />
 				</when>
 				<otherwise >
 					<flow-ref doc:name="get-category" doc:id="cefb9d1c-5771-4e5b-9bec-6952ee83d308" name="get-category" />
 					<os:store doc:name="skillCategory" doc:id="e1826cb4-8743-4ead-9ede-235864029d2d" key="#[payload[0].batchId ++ payload[0].week as String]" objectStore="Object_store">
-				<os:value><![CDATA[#[payload[0].skillCategory]]]></os:value>
+				<os:value><![CDATA[#[%dw 2.0
+output application/json
+---
+payload[0].skillCategory]]]></os:value>
 			</os:store>
 				</otherwise>
 			</choice>
@@ -230,7 +233,8 @@ payload map{
 	assessmentType: $.assessmentType,
 	weekNumber: $.weekNumber,
 	batchId: $.batchId,
-	assessmentCategory: $.batchId,
+	assessmentCategory: $.assessmentCategory,
+	assignmentDate: $.assignmentDate
 }]]></ee:set-payload>
 			</ee:message>
 			<ee:variables>
