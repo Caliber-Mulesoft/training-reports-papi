@@ -1,0 +1,27 @@
+#%RAML 1.0
+title: Trainer Reports API
+
+types:
+  trainerReport: !include /types/trainerReport.raml
+/report:
+  /{trainerEmail}:
+    uriParameters:
+      trainerEmail:
+        type: string
+        required: true
+        minLength: 6
+    get:
+      responses:
+        200:
+          body:
+             application/json:
+               type: trainerReport
+               example: !include /examples/trainerReportExample.raml
+  /utilization:
+    get:
+      responses:
+        200:
+          body:
+            application/json:
+              example:
+                message: "Trainer utilization: ##%"
