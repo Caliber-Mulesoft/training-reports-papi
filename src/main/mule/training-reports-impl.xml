@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:qc-system-api="http://www.mulesoft.org/schema/mule/qc-system-api" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/qc-system-api http://www.mulesoft.org/schema/mule/qc-system-api/current/mule-qc-system-api.xsd">
+	<qc-system-api:config name="QC_System_API_Config" doc:name="QC System API Config" doc:id="a1a82c83-0607-4931-981a-43c0eb907cf7" />
+	<flow name="get-report-by-email" doc:id="289c8b5c-c8ac-419b-bb58-1218ab0e1f8b" >
+		<scatter-gather doc:name="Scatter-Gather" doc:id="4e42e9e1-aeb8-4b12-97b4-48c5267a9ad9" >
+			<route >
+				<flow-ref doc:name="get-trainer-info" doc:id="abb23b99-c70a-4d4d-a44c-c2bb565bc033" name="get-trainer-info" />
+			</route>
+			<route >
+				<flow-ref doc:name="get-batch-ids" doc:id="78462453-deca-423d-a07e-2cdfebfd1744" name="get-batch-ids"/>
+			</route>
+		</scatter-gather>
+		<set-payload value="#[vars.batchIds]" doc:name="batchIds" doc:id="f7aafac4-c68a-48a7-946c-1f1c4e050eab" />
+		<flow-ref doc:name="get-batch-info" doc:id="9889afda-23c3-4f4a-82a5-c096f99d87f2" name="get-batch-info" />
+		<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;vars.trainerInfo ++ {batches: [vars."output"]}]' doc:name="vars.output to payload" doc:id="d74e7d0d-f44c-4f25-9db4-6d7b30216751" />
+		<logger level="INFO" doc:name="Logger" doc:id="a1d65eb3-41a6-4bfb-af53-9778102bbb6b" />
+	</flow>
+	<flow name="get-trainer-info" doc:id="25390650-cb32-4cd2-9059-cc1cdb7a6291" >
+		<http:request method="GET" doc:name="GET /training/{trainerEmail}" doc:id="90781def-66ea-4f12-8b6b-c9500e972fae" config-ref="HTTP_Request_configuration" path="${get-trainer-info.path}/{email}">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"email" : vars.trainerEmail
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="35019a48-4539-4ce5-8f08-226b49f695b4" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="trainerInfo" ><![CDATA[%dw 2.0
+output application/dw
+---
+employee: {
+	email: payload.email,
+	firstName: payload.firstName,
+	lastName: payload.lastName
+}
+]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="d7ef883b-898c-4227-96d8-c784b9219ec8" />
+	</flow>
+	<flow name="get-batch-ids" doc:id="82e625b3-4519-4b99-ba66-21359659a088" >
+		<http:request method="GET" doc:name="GET /training" doc:id="b01d2c8d-ac8f-4475-965d-87f2fff1fb2d" config-ref="HTTP_Request_configuration" path="${get-trainer-info.path}">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"email" : vars.trainerEmail
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="b45b025a-0f58-43f0-bc2b-73d9b61c8d6b" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="batchIds" ><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="f20e090e-d14d-4d22-819b-698802aaf4c7" />
+	</flow>
+	<flow name="get-batch-info" doc:id="751b3957-43f0-4379-b045-846a2ed6afc4" >
+		<set-variable doc:name="batch-info" doc:id="b47083f9-1c0a-4d98-9736-4d83db849ed4" variableName="batch-info" value="#[%dw 2.0&#10;output application/dw&#10;---&#10;{}]"/>
+		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="qcNotes" doc:id="82d24e00-c848-44a4-88f4-00068c54e6a9" variableName="qcNotes" />
+		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="notesWithSkills" doc:id="687817d6-aa5a-4e2e-91c7-60af485dc8f1" variableName="notesWithSkills" />
+		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="assessments" doc:id="13cd11f3-6ab3-483b-a392-7a8feb7a9e33" variableName="assessments"/>
+		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="assessmentsWithSkills" doc:id="cd4eac54-c80a-4f5b-b981-b0bd613da417" variableName="assessmentsWithSkills"/>
+		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="assessmentsComplete" doc:id="312a4006-996b-4bb7-856d-ca48d6b66f58" variableName="assessmentsComplete"/>
+		<foreach doc:name="For Each" doc:id="c75369da-6eac-42f9-bee9-cd0ef41b5a14" collection="#[vars.batchIds]">
+			<scatter-gather doc:name="Scatter-Gather" doc:id="c62dea74-0feb-4acf-b2cb-b7cc7250eb06" >
+				<route >
+					<http:request method="GET" doc:name="GET /training/batch" doc:id="b6274081-f849-430b-940e-0e0d93fe2732" config-ref="HTTP_Request_configuration" path="${get-trainer-info.path}${get-batch-info.path}">
+				<http:query-params><![CDATA[#[output application/java
+---
+{
+	"batchId" : payload
+}]]]></http:query-params>
+			</http:request>
+					<ee:transform doc:name="Transform Message" doc:id="c324e117-8b23-4dc0-b441-acbc364a6cab" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/dw
+---
+{
+	id: payload.id,
+	batchId: payload.batchId,
+	name: payload.name,
+	startDate: payload.startDate,
+	endDate: payload.endDate,
+	skill: payload.skill,
+	location: payload.location,
+	"type": payload."type"
+}
+]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<ee:transform doc:name="batch-info" doc:id="5b9da136-fb8b-49d7-9963-ed76ddaf51a0" >
+						<ee:message >
+						</ee:message>
+						<ee:variables >
+							<ee:set-variable variableName="batch-info" ><![CDATA[%dw 2.0
+output application/dw
+---
+vars."batch-info" ++ payload]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+				</route>
+				<route >
+					<flow-ref doc:name="get-qc-notes" doc:id="8c7e34c9-45ff-4f8d-972a-8c1fa5fb801f" name="get-qc-notes"/>
+				</route>
+				<route >
+					<flow-ref doc:name="get-assessments" doc:id="85932095-5a50-434c-bda8-3153ca8aac91" name="get-assessments" />
+				</route>
+			</scatter-gather>
+			<ee:transform doc:name="all info to vars.output" doc:id="d9ab1f02-f5d9-4992-8cf3-60255bc704ff" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="output" ><![CDATA[%dw 2.0
+output application/dw
+---
+vars."batch-info" ++ {qcNotes: vars.notesWithSkills} ++ {assessments: vars.assessmentsComplete}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+		</foreach>
+		<logger level="INFO" doc:name="Logger" doc:id="b3dd4acd-0c47-42ea-8db6-93d0d443c406" />
+	</flow>
+	<flow name="get-qc-notes" doc:id="fc898349-b5bb-41f5-b62d-4d22778a5af9" >
+		<http:request method="GET" doc:name="GET /notes/{batchId}" doc:id="bfba91e2-c6c2-44e7-b1df-90edf6651fb7" config-ref="HTTP_Request_configuration" path="${get-qc-notes.path}/{batchId}">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"batchId" : payload
+}]]]></http:uri-params>
+		</http:request>
+		<ee:transform doc:name="vars.qcNotes" doc:id="2ebb93d9-7d45-4601-a0d9-cfa0f6b008f5" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="qcNotes" ><![CDATA[%dw 2.0
+output application/dw
+---
+payload map{
+	noteId: $.noteId,
+	content: $.content,
+	week: $.week,
+	batchId: $.batchId,
+	associateId: $.associateId,
+	employeeId: $.employeeId,
+	"type": $."type",
+	technicalStatus: $.technicalStatus,
+	createdOn: $.createdOn,
+	"lastUpdated": $.lastUpdated
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<foreach doc:name="For Each" doc:id="18d0adda-b3c5-438a-b268-cc0f07827425" collection="vars.qcNotes">
+			<os:retrieve doc:name="skillCategory" doc:id="912f1851-7a61-45b2-a137-a2cf73a6d398" key="#[payload.batchId ++ payload.week as String]" objectStore="Object_store">
+				<os:default-value ><![CDATA[#[%dw 2.0
+output application/dw
+---
+{
+	batchId: payload.batchId,
+	week: payload.week
+}]]]></os:default-value>
+			</os:retrieve>
+			<choice doc:name="Choice" doc:id="9282888d-0c60-4c74-8c35-f349c607e769" >
+				<when expression="#[payload is String]">
+					<set-payload value="#[%dw 2.0&#10;output application/json&#10;---&#10;[{skillCategory: payload}]]" doc:name="assign skill to payload" doc:id="6114e89e-9072-40ba-b4d3-23e2a511c394" />
+				</when>
+				<otherwise >
+					<flow-ref doc:name="get-category" doc:id="cefb9d1c-5771-4e5b-9bec-6952ee83d308" name="get-category" />
+					<os:store doc:name="skillCategory" doc:id="e1826cb4-8743-4ead-9ede-235864029d2d" key="#[payload.batchId ++ payload.week as String]" objectStore="Object_store">
+				<os:value><![CDATA[#[%dw 2.0
+output application/json
+---
+payload.skillCategory]]]></os:value>
+			</os:store>
+				</otherwise>
+			</choice>
+			<ee:transform doc:name="Transform Message" doc:id="52a72674-9772-4208-ae5d-e8ddb2bb9262">
+			<ee:message>
+			</ee:message>
+				<ee:variables>
+					<ee:set-variable variableName="notesWithSkills"><![CDATA[%dw 2.0
+output application/dw
+---
+vars.notesWithSkills << (vars.qcNotes[(vars.counter - 1)] ++ {categories: payload.skillCategory})]]></ee:set-variable>
+				</ee:variables>
+		</ee:transform>
+			<logger level="INFO" doc:name="Logger" doc:id="e18f95e0-ad65-45f1-9085-7f26b9ddcb7a" message='#["batchId": payload.batchId]' />
+		</foreach>
+		<logger level="INFO" doc:name="Logger" doc:id="d869b149-47a7-42bb-af72-fa57d0f3b65e" message='#["outOfForEach": payload]'/>
+	</flow>
+	<flow name="get-category" doc:id="014322cb-11e3-4294-9a8e-302352666117" >
+		<qc-system-api:get-category-by-batch-id-and-week doc:name="Get Category By Batch ID and Week" doc:id="e4d6e458-5880-47ca-bb4e-ad40174ea68e" config-ref="QC_System_API_Config" batch-id="#[payload.batchId]" week="#[payload.week]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="9dff8bf5-e90a-4a02-aff4-1b22fd048e47" message='#["skill": payload.skillCategory]'/>
+	</flow>
+	<flow name="get-assessments" doc:id="dcf8a60f-f9aa-45b5-bc6b-8eb0798805e8" >
+		<http:request method="GET" doc:name="GET /assessment" doc:id="aed1d106-60f9-4b37-8975-cbff22090643" config-ref="caliber_HTTP_Request_configuration1" path="${get-assessment.path}">
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	"batchId" : payload
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="mapping payload to vars.assessments" doc:id="54c8c0c1-f824-4bb4-8d85-0280e283518b">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="assessments" ><![CDATA[%dw 2.0
+output application/dw
+---
+payload map{
+	assessmentId: $.assessmentId,
+	rawScore: $.rawScore,
+	assessmentTitle: $.assessmentTitle,
+	assessmentType: $.assessmentType,
+	weekNumber: $.weekNumber,
+	batchId: $.batchId,
+	assessmentCategory: $.assessmentCategory,
+	assignmentDate: $.assignmentDate
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<foreach doc:name="For Each" doc:id="a02601dc-83e7-4ad7-89e2-cc03d298f861" collection="#[vars.assessments]">
+			<flow-ref doc:name="get-assessment-category" doc:id="7291e405-5f62-4ad9-aece-b78b288dc857" name="get-assessment-category" />
+			<ee:transform doc:name="add skills to assessments" doc:id="ae0dd9b2-5381-4b9f-bbd8-5ebc3f4743ff">
+				<ee:message>
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="assessmentsWithSkills" ><![CDATA[%dw 2.0
+output application/dw
+---
+vars.assessmentsWithSkills << (vars.assessments[(vars.counter - 1)] ++ {skillCategory: payload.skillCategory})]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<set-payload value="#[%dw 2.0&#10;output application/dw&#10;---&#10;vars.assessmentsWithSkills[vars.counter - 1]]" doc:name="Set Payload" doc:id="b719a91b-23f4-4bcd-a4b2-6690ff7d42f5" />
+			<flow-ref doc:name="get-average" doc:id="3755dc7a-de79-4189-b823-e46b697e9bdd" name="get-average"/>
+		</foreach>
+		<logger level="INFO" doc:name="Logger" doc:id="38636b71-59ec-44a3-b5b4-36510c30f958" />
+	</flow>
+	<flow name="get-average" doc:id="0be7399f-3e3a-46d9-a3c5-beb20d190007" >
+		<http:request method="GET" doc:name="GET /average" doc:id="bc56f998-e7b1-4f2b-aa61-856e719960d3" config-ref="caliber_HTTP_Request_configuration1" path="${get-average.path}">
+				<http:query-params><![CDATA[#[output application/java
+---
+{
+	"assessment" : payload.assessmentId
+}]]]></http:query-params>
+			</http:request>
+		<ee:transform doc:name="add average to assessment" doc:id="496d7234-63de-45d3-a9d7-7387a06d6241" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="assessmentsComplete" ><![CDATA[%dw 2.0
+output application/dw
+---
+vars.assessmentsComplete << (vars.assessmentsWithSkills[(vars.counter - 1)] ++ {average: payload})]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+	</flow>
+	<flow name="get-assessment-category" doc:id="5c6b3119-92a1-42e1-a1e9-1f21fb1c7083" >
+		<http:request method="GET" doc:name="GET /assessment-category" doc:id="32fb5605-a8e6-47f6-874a-a56b9f0b381f" config-ref="category_HTTP_Request_configuration1" path="${get-assessment-category.path}/{id}">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"id" : payload.assessmentCategory
+}]]]></http:uri-params>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="76d2d072-e349-4dca-9466-dc145eb56c6d" />
+	</flow>
+
+</mule>

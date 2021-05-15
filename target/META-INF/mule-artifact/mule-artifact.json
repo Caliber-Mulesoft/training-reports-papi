@@ -1,8 +1,9 @@
 {
   "configs": [
-    "training-reports-papi.xml",
     "global.xml",
-    "trainer-reports-api.xml"
+    "trainer-utilization-impl.xml",
+    "trainer-reports-api.xml",
+    "training-reports-impl.xml"
   ],
   "secureProperties": [],
   "redeploymentEnabled": true,
@@ -25,7 +26,8 @@
         "global.xml",
         "log4j2.xml",
         "trainer-reports-api.xml",
-        "training-reports-papi.xml"
+        "trainer-utilization-impl.xml",
+        "training-reports-impl.xml"
       ]
     }
   },

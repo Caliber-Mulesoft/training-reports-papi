@@ -124,16 +124,7 @@ output application/json
         </error-handler>
     </flow>
     <flow name="get:\report\utilization:trainer-reports-api-config">
-        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
-            <ee:message>
-                <ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-{
-  message: "Trainer utilization: ##%"
-}]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
+        <flow-ref doc:name="get-utilization" doc:id="8ed767b2-4c3a-4452-8b15-f35730db3f91" name="get-utilization"/>
     </flow>
     <flow name="get:\report\(trainerEmail):trainer-reports-api-config">
         <set-variable value="#[attributes.uriParams.trainerEmail]" doc:name="trainerEmail" doc:id="f248cdec-46b4-4b35-8776-a2a30310d04f" variableName="trainerEmail"/>

@@ -16,5 +16,8 @@ http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/cu
 	<http:request-config name="category_HTTP_Request_configuration1" doc:name="HTTP Request configuration" doc:id="90fe8c72-e937-42a8-97e0-c42c4b373882" basePath="${get-assessment-category.basepath}" >
 		<http:request-connection protocol="${get-assessment.protocol}" host="${get-assessment.host}" port="${get-assessment.port}" />
 	</http:request-config>
+	<http:request-config name="utlization_HTTP_Request_configuration1" doc:name="HTTP Request configuration" doc:id="bddffded-f3a4-4b99-a318-dd7208244e68" basePath="${get-utilization.basepath}" >
+		<http:request-connection protocol="${get-utilization.protocol}" host="${get-utilization.host}" port="${get-utilization.port}" />
+	</http:request-config>
 
 </mule>

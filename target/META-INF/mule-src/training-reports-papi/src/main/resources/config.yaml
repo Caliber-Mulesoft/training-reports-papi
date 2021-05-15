@@ -29,3 +29,15 @@ get-assessment-category:
   
 get-average:
   path: "/grades/average"
+  
+get-utilization:
+  host: "caliber2-mock.revaturelabs.com"
+  port: "443"
+  basepath: "/mock"
+  protocol: "HTTPS"
+  
+get-current-batch:
+  path: "/training/batch/current"
+  
+get-all-trainers:
+  path: "/training/batch/trainers"
