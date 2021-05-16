@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:training-mastersapi="http://www.mulesoft.org/schema/mule/training-mastersapi" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/training-mastersapi http://www.mulesoft.org/schema/mule/training-mastersapi/current/mule-training-mastersapi.xsd">
 	<flow name="get-utilization" doc:id="38b0f1ed-38c0-4fc1-b7fc-3fc3297dd8a6" >
 		<set-variable value="" doc:name="distinctBatch" doc:id="5c98a5c8-de8a-448f-8666-7721a2b540e9" variableName="distinctBatch"/>
 		<set-variable value="" doc:name="distinctTrainer" doc:id="a32fe647-f50e-40e6-b737-e4e6c3599c65" variableName="distinctTrainer"/>
 		<scatter-gather doc:name="Scatter-Gather" doc:id="e9aff7cc-5e0f-4292-8560-592ba0292432" >
 			<route >
-				<http:request method="GET" doc:name="GET /batch/current" doc:id="d1187ea7-d90c-4cac-b2d4-5a00bc72bf4d" config-ref="utlization_HTTP_Request_configuration1" path="${get-current-batch.path}"/>
+				<training-mastersapi:get-current-batches doc:name="Get current batches" doc:id="21b7bd67-ecd2-49bf-9145-f75fe4cd02cc" config-ref="trainingMasterSapiConfig"/>
 				<ee:transform doc:name="Transform Message" doc:id="2ca82221-7024-472a-91d9-e016909ac887" >
 					<ee:message >
 						<ee:set-payload ><![CDATA[%dw 2.0
@@ -48,7 +49,7 @@ output application/dw
 				<logger level="INFO" doc:name="Logger" doc:id="438e8ac7-c63c-4031-9466-72749903db48" />
 			</route>
 			<route >
-				<http:request method="GET" doc:name="GET /batch/trainers" doc:id="c20a2791-3bd7-47ab-8da4-c29c071a3c62" config-ref="utlization_HTTP_Request_configuration1" path="${get-all-trainers.path}"/>
+				<training-mastersapi:get-all-trainers doc:name="Get all trainers" doc:id="a5f460c5-d55a-4b0e-867a-3e896243ab05" config-ref="trainingMasterSapiConfig"/>
 				<ee:transform doc:name="Transform Message" doc:id="cea80a14-0b33-408d-ae01-3f246a508da6" >
 					<ee:message >
 						<ee:set-payload ><![CDATA[%dw 2.0

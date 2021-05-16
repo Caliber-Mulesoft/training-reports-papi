@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry kind="con" path="MULE_LIB/95f2b6a3-d01a-48ea-9a41-b5d71636cf89/mule-plugin-training-master-sapi/1.0.0"/>
+	<classpathentry kind="con" path="MULE_LIB/202383ba-8a30-47f2-a9af-40a59ffe741f/mule-plugin-training-master-sapi/1.1.0"/>
 	<classpathentry kind="con" path="MULE_LIB/202383ba-8a30-47f2-a9af-40a59ffe741f/mule-plugin-qc-system-api/1.0.6"/>
 	<classpathentry kind="con" path="MULE_LIB/org.mule.connectors/mule-sockets-connector/1.1.5"/>
 	<classpathentry kind="con" path="MULE_LIB/org.mule.connectors/mule-http-connector/1.5.23"/>

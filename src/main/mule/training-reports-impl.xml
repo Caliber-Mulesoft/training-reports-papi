@@ -8,7 +8,6 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
 http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
 http://www.mulesoft.org/schema/mule/qc-system-api http://www.mulesoft.org/schema/mule/qc-system-api/current/mule-qc-system-api.xsd">
-	<qc-system-api:config name="QC_System_API_Config" doc:name="QC System API Config" doc:id="a1a82c83-0607-4931-981a-43c0eb907cf7" />
 	<flow name="get-report-by-email" doc:id="289c8b5c-c8ac-419b-bb58-1218ab0e1f8b" >
 		<scatter-gather doc:name="Scatter-Gather" doc:id="4e42e9e1-aeb8-4b12-97b4-48c5267a9ad9" >
 			<route >
@@ -202,7 +201,7 @@ vars.notesWithSkills << (vars.qcNotes[(vars.counter - 1)] ++ {categories: payloa
 		<logger level="INFO" doc:name="Logger" doc:id="d869b149-47a7-42bb-af72-fa57d0f3b65e" message='#["outOfForEach": payload]'/>
 	</flow>
 	<flow name="get-category" doc:id="014322cb-11e3-4294-9a8e-302352666117" >
-		<qc-system-api:get-category-by-batch-id-and-week doc:name="Get Category By Batch ID and Week" doc:id="e4d6e458-5880-47ca-bb4e-ad40174ea68e" config-ref="QC_System_API_Config" batch-id="#[payload.batchId]" week="#[payload.week]"/>
+		<qc-system-api:get-category-by-batch-id-and-week doc:name="Get Category By Batch ID and Week" doc:id="e4d6e458-5880-47ca-bb4e-ad40174ea68e" batch-id="#[payload.batchId]" week="#[payload.week]" config-ref="qcSystemApiConfig"/>
 		<logger level="INFO" doc:name="Logger" doc:id="9dff8bf5-e90a-4a02-aff4-1b22fd048e47" message='#["skill": payload.skillCategory]'/>
 	</flow>
 	<flow name="get-assessments" doc:id="dcf8a60f-f9aa-45b5-bc6b-8eb0798805e8" >
