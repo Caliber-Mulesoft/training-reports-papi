@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:qc-system-api="http://www.mulesoft.org/schema/mule/qc-system-api" xmlns:os="http://www.mulesoft.org/schema/mule/os"
-	xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
-	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:evaluation-master-api="http://www.mulesoft.org/schema/mule/evaluation-master-api" xmlns:category-mastersapi="http://www.mulesoft.org/schema/mule/category-mastersapi"
+	xmlns:training-mastersapi="http://www.mulesoft.org/schema/mule/training-mastersapi"
+	xmlns:qc-system-api="http://www.mulesoft.org/schema/mule/qc-system-api" xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
 http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
-http://www.mulesoft.org/schema/mule/qc-system-api http://www.mulesoft.org/schema/mule/qc-system-api/current/mule-qc-system-api.xsd">
+http://www.mulesoft.org/schema/mule/qc-system-api http://www.mulesoft.org/schema/mule/qc-system-api/current/mule-qc-system-api.xsd
+http://www.mulesoft.org/schema/mule/training-mastersapi http://www.mulesoft.org/schema/mule/training-mastersapi/current/mule-training-mastersapi.xsd
+http://www.mulesoft.org/schema/mule/category-mastersapi http://www.mulesoft.org/schema/mule/category-mastersapi/current/mule-category-mastersapi.xsd
+http://www.mulesoft.org/schema/mule/evaluation-master-api http://www.mulesoft.org/schema/mule/evaluation-master-api/current/mule-evaluation-master-api.xsd">
 	<flow name="get-report-by-email" doc:id="289c8b5c-c8ac-419b-bb58-1218ab0e1f8b" >
 		<scatter-gather doc:name="Scatter-Gather" doc:id="4e42e9e1-aeb8-4b12-97b4-48c5267a9ad9" >
 			<route >
@@ -23,13 +26,7 @@ http://www.mulesoft.org/schema/mule/qc-system-api http://www.mulesoft.org/schema
 		<logger level="INFO" doc:name="Logger" doc:id="a1d65eb3-41a6-4bfb-af53-9778102bbb6b" />
 	</flow>
 	<flow name="get-trainer-info" doc:id="25390650-cb32-4cd2-9059-cc1cdb7a6291" >
-		<http:request method="GET" doc:name="GET /training/{trainerEmail}" doc:id="90781def-66ea-4f12-8b6b-c9500e972fae" config-ref="HTTP_Request_configuration" path="${get-trainer-info.path}/{email}">
-			<http:uri-params ><![CDATA[#[output application/java
----
-{
-	"email" : vars.trainerEmail
-}]]]></http:uri-params>
-		</http:request>
+		<training-mastersapi:get-by-trainer-email doc:name="Get by trainer email" doc:id="7b975c44-221c-4036-a26d-173e01b24a71" config-ref="trainingMasterSapiConfig" trainer-email="#[vars.trainerEmail]"/>
 		<ee:transform doc:name="Transform Message" doc:id="35019a48-4539-4ce5-8f08-226b49f695b4" >
 			<ee:message >
 			</ee:message>
@@ -48,13 +45,7 @@ employee: {
 		<logger level="INFO" doc:name="Logger" doc:id="d7ef883b-898c-4227-96d8-c784b9219ec8" />
 	</flow>
 	<flow name="get-batch-ids" doc:id="82e625b3-4519-4b99-ba66-21359659a088" >
-		<http:request method="GET" doc:name="GET /training" doc:id="b01d2c8d-ac8f-4475-965d-87f2fff1fb2d" config-ref="HTTP_Request_configuration" path="${get-trainer-info.path}">
-			<http:query-params ><![CDATA[#[output application/java
----
-{
-	"email" : vars.trainerEmail
-}]]]></http:query-params>
-		</http:request>
+		<training-mastersapi:get-batchids doc:name="Get batchIds" doc:id="c9fb2623-8050-43ad-8645-7d0852d4743f" config-ref="trainingMasterSapiConfig" email="#[vars.trainerEmail]"/>
 		<ee:transform doc:name="Transform Message" doc:id="b45b025a-0f58-43f0-bc2b-73d9b61c8d6b" >
 			<ee:message >
 			</ee:message>
@@ -77,13 +68,7 @@ payload]]></ee:set-variable>
 		<foreach doc:name="For Each" doc:id="c75369da-6eac-42f9-bee9-cd0ef41b5a14" collection="#[vars.batchIds]">
 			<scatter-gather doc:name="Scatter-Gather" doc:id="c62dea74-0feb-4acf-b2cb-b7cc7250eb06" >
 				<route >
-					<http:request method="GET" doc:name="GET /training/batch" doc:id="b6274081-f849-430b-940e-0e0d93fe2732" config-ref="HTTP_Request_configuration" path="${get-trainer-info.path}${get-batch-info.path}">
-				<http:query-params><![CDATA[#[output application/java
----
-{
-	"batchId" : payload
-}]]]></http:query-params>
-			</http:request>
+					<training-mastersapi:get-batches-training-version doc:name="Get batches (training version)" doc:id="a10c7f11-f5a4-44fe-9885-8856ea4905f8" config-ref="trainingMasterSapiConfig" batch-id="#[payload]"/>
 					<ee:transform doc:name="Transform Message" doc:id="c324e117-8b23-4dc0-b441-acbc364a6cab" >
 						<ee:message >
 							<ee:set-payload ><![CDATA[%dw 2.0
@@ -134,13 +119,7 @@ vars."batch-info" ++ {qcNotes: vars.notesWithSkills} ++ {assessments: vars.asses
 		<logger level="INFO" doc:name="Logger" doc:id="b3dd4acd-0c47-42ea-8db6-93d0d443c406" />
 	</flow>
 	<flow name="get-qc-notes" doc:id="fc898349-b5bb-41f5-b62d-4d22778a5af9" >
-		<http:request method="GET" doc:name="GET /notes/{batchId}" doc:id="bfba91e2-c6c2-44e7-b1df-90edf6651fb7" config-ref="HTTP_Request_configuration" path="${get-qc-notes.path}/{batchId}">
-			<http:uri-params ><![CDATA[#[output application/java
----
-{
-	"batchId" : payload
-}]]]></http:uri-params>
-		</http:request>
+		<qc-system-api:get-notes-by-batch-id doc:name="Get Notes By Batch ID" doc:id="8591df7e-1298-4220-8329-ecf6630b9bd6" batch-id="#[payload]" config-ref="qcSystemApiConfig"/>
 		<ee:transform doc:name="vars.qcNotes" doc:id="2ebb93d9-7d45-4601-a0d9-cfa0f6b008f5" >
 			<ee:message >
 			</ee:message>
@@ -149,21 +128,21 @@ vars."batch-info" ++ {qcNotes: vars.notesWithSkills} ++ {assessments: vars.asses
 output application/dw
 ---
 payload map{
-	noteId: $.noteId,
-	content: $.content,
-	week: $.week,
-	batchId: $.batchId,
-	associateId: $.associateId,
-	employeeId: $.employeeId,
-	"type": $."type",
-	technicalStatus: $.technicalStatus,
-	createdOn: $.createdOn,
-	"lastUpdated": $.lastUpdated
+	NoteId: $.NoteId,
+	content: $.Content,
+	week: $.Week,
+	batchId: $.BatchId,
+	associateId: $.AssociateId,
+	employeeId: $.EmployeeId,
+	"type": $."Type",
+	technicalStatus: $.TechnicalStatus,
+	createdOn: $.CreatedOn,
+	lastUpdated: $.LastUpdated
 }]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<foreach doc:name="For Each" doc:id="18d0adda-b3c5-438a-b268-cc0f07827425" collection="vars.qcNotes">
-			<os:retrieve doc:name="skillCategory" doc:id="912f1851-7a61-45b2-a137-a2cf73a6d398" key="#[payload.batchId ++ payload.week as String]" objectStore="Object_store">
+		<foreach doc:name="For Each" doc:id="18d0adda-b3c5-438a-b268-cc0f07827425" collection="#[payload]">
+			<os:retrieve doc:name="skillCategory" doc:id="912f1851-7a61-45b2-a137-a2cf73a6d398" key="#[payload.BatchId ++ payload.Week as String]" objectStore="Object_store">
 				<os:default-value ><![CDATA[#[%dw 2.0
 output application/dw
 ---
@@ -186,7 +165,7 @@ payload.skillCategory]]]></os:value>
 			</os:store>
 				</otherwise>
 			</choice>
-			<ee:transform doc:name="Transform Message" doc:id="52a72674-9772-4208-ae5d-e8ddb2bb9262">
+			<ee:transform doc:name="notesWithSkills" doc:id="52a72674-9772-4208-ae5d-e8ddb2bb9262">
 			<ee:message>
 			</ee:message>
 				<ee:variables>
@@ -205,13 +184,7 @@ vars.notesWithSkills << (vars.qcNotes[(vars.counter - 1)] ++ {categories: payloa
 		<logger level="INFO" doc:name="Logger" doc:id="9dff8bf5-e90a-4a02-aff4-1b22fd048e47" message='#["skill": payload.skillCategory]'/>
 	</flow>
 	<flow name="get-assessments" doc:id="dcf8a60f-f9aa-45b5-bc6b-8eb0798805e8" >
-		<http:request method="GET" doc:name="GET /assessment" doc:id="aed1d106-60f9-4b37-8975-cbff22090643" config-ref="caliber_HTTP_Request_configuration1" path="${get-assessment.path}">
-			<http:query-params><![CDATA[#[output application/java
----
-{
-	"batchId" : payload
-}]]]></http:query-params>
-		</http:request>
+		<evaluation-master-api:get-assessments doc:name="Get assessments" doc:id="18657f88-a723-4225-8673-e65990742863" batch-id="#[payload]" config-ref="evaluationSapiConfig"/>
 		<ee:transform doc:name="mapping payload to vars.assessments" doc:id="54c8c0c1-f824-4bb4-8d85-0280e283518b">
 			<ee:message>
 			</ee:message>
@@ -249,13 +222,7 @@ vars.assessmentsWithSkills << (vars.assessments[(vars.counter - 1)] ++ {skillCat
 		<logger level="INFO" doc:name="Logger" doc:id="38636b71-59ec-44a3-b5b4-36510c30f958" />
 	</flow>
 	<flow name="get-average" doc:id="0be7399f-3e3a-46d9-a3c5-beb20d190007" >
-		<http:request method="GET" doc:name="GET /average" doc:id="bc56f998-e7b1-4f2b-aa61-856e719960d3" config-ref="caliber_HTTP_Request_configuration1" path="${get-average.path}">
-				<http:query-params><![CDATA[#[output application/java
----
-{
-	"assessment" : payload.assessmentId
-}]]]></http:query-params>
-			</http:request>
+		<evaluation-master-api:get-average doc:name="Get average" doc:id="4ae9e201-2785-4ec6-a701-fac93ec67ce6" assessment-id="#[payload.assessmentId]" config-ref="evaluationSapiConfig"/>
 		<ee:transform doc:name="add average to assessment" doc:id="496d7234-63de-45d3-a9d7-7387a06d6241" >
 			<ee:message >
 			</ee:message>
@@ -268,13 +235,7 @@ vars.assessmentsComplete << (vars.assessmentsWithSkills[(vars.counter - 1)] ++ {
 		</ee:transform>
 	</flow>
 	<flow name="get-assessment-category" doc:id="5c6b3119-92a1-42e1-a1e9-1f21fb1c7083" >
-		<http:request method="GET" doc:name="GET /assessment-category" doc:id="32fb5605-a8e6-47f6-874a-a56b9f0b381f" config-ref="category_HTTP_Request_configuration1" path="${get-assessment-category.path}/{id}">
-			<http:uri-params ><![CDATA[#[output application/java
----
-{
-	"id" : payload.assessmentCategory
-}]]]></http:uri-params>
-		</http:request>
+		<category-mastersapi:get-category doc:name="Get category" doc:id="842611bc-5fe9-47c2-9083-94f14ffb8a24" id="#[payload.assessmentCategory]" config-ref="categorySapiConfig"/>
 		<logger level="INFO" doc:name="Logger" doc:id="76d2d072-e349-4dca-9466-dc145eb56c6d" />
 	</flow>
 
