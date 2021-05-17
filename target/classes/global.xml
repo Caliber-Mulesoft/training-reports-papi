@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:evaluation-master-api="http://www.mulesoft.org/schema/mule/evaluation-master-api" xmlns:category-mastersapi="http://www.mulesoft.org/schema/mule/category-mastersapi"
+	xmlns:qc-system-api="http://www.mulesoft.org/schema/mule/qc-system-api"
+	xmlns:training-mastersapi="http://www.mulesoft.org/schema/mule/training-mastersapi" xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/training-mastersapi http://www.mulesoft.org/schema/mule/training-mastersapi/current/mule-training-mastersapi.xsd
+http://www.mulesoft.org/schema/mule/qc-system-api http://www.mulesoft.org/schema/mule/qc-system-api/current/mule-qc-system-api.xsd
+http://www.mulesoft.org/schema/mule/category-mastersapi http://www.mulesoft.org/schema/mule/category-mastersapi/current/mule-category-mastersapi.xsd
+http://www.mulesoft.org/schema/mule/evaluation-master-api http://www.mulesoft.org/schema/mule/evaluation-master-api/current/mule-evaluation-master-api.xsd">
+	<configuration-properties doc:name="Configuration properties" doc:id="ec57245e-bd82-4b0a-972f-99e1df65884b" file="config.yaml" />
+	<os:object-store name="Object_store" doc:name="Object store" doc:id="9dd0151f-60aa-484b-b353-208b72263e17" persistent="false" />
+	<training-mastersapi:config name="trainingMasterSapiConfig" doc:name="Training Master sapi Config" doc:id="5b0bd77d-01bf-41c4-bb86-45641d3e38b0" property_responseTimeout="10000000"/>
+	<qc-system-api:config name="qcSystemApiConfig" doc:name="QC System API Config" doc:id="30c333c8-d8ab-4f3e-810c-374d9a8a258d" property_responseTimeout="1000000"/>
+	<category-mastersapi:config name="categorySapiConfig" doc:name="Category Master sapi Config" doc:id="c010e05e-a347-4759-8d1c-72e977a6ecfe" property_responseTimeout="1000000"/>
+	<http:request-config name="caliberHttpReqConfig" doc:name="HTTP Request configuration" doc:id="44130406-166b-43ff-9ba6-c0255450a312" basePath="${get-assessment.basepath}" >
+		<http:request-connection protocol="${get-assessment.protocol}" host="${get-assessment.host}" port="${get-assessment.port}" />
+	</http:request-config>
+
+</mule>
