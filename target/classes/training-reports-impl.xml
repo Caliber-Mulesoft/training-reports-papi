@@ -22,7 +22,7 @@ http://www.mulesoft.org/schema/mule/evaluation-master-api http://www.mulesoft.or
 		</scatter-gather>
 		<set-payload value="#[vars.batchIds]" doc:name="batchIds" doc:id="f7aafac4-c68a-48a7-946c-1f1c4e050eab" />
 		<flow-ref doc:name="get-batch-info" doc:id="9889afda-23c3-4f4a-82a5-c096f99d87f2" name="get-batch-info" />
-		<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;vars.trainerInfo ++ {batches: [vars."output"]}]' doc:name="vars.output to payload" doc:id="d74e7d0d-f44c-4f25-9db4-6d7b30216751" />
+		<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;vars.trainerInfo ++ {batches: vars.completeResult}]' doc:name="vars.output to payload" doc:id="d74e7d0d-f44c-4f25-9db4-6d7b30216751" />
 		<logger level="INFO" doc:name="Logger" doc:id="a1d65eb3-41a6-4bfb-af53-9778102bbb6b" />
 	</flow>
 	<flow name="get-trainer-info" doc:id="25390650-cb32-4cd2-9059-cc1cdb7a6291" >
@@ -59,13 +59,15 @@ payload]]></ee:set-variable>
 		<logger level="INFO" doc:name="Logger" doc:id="f20e090e-d14d-4d22-819b-698802aaf4c7" />
 	</flow>
 	<flow name="get-batch-info" doc:id="751b3957-43f0-4379-b045-846a2ed6afc4" >
-		<set-variable doc:name="batch-info" doc:id="b47083f9-1c0a-4d98-9736-4d83db849ed4" variableName="batch-info" value="#[%dw 2.0&#10;output application/dw&#10;---&#10;{}]"/>
-		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="qcNotes" doc:id="82d24e00-c848-44a4-88f4-00068c54e6a9" variableName="qcNotes" />
-		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="notesWithSkills" doc:id="687817d6-aa5a-4e2e-91c7-60af485dc8f1" variableName="notesWithSkills" />
-		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="assessments" doc:id="13cd11f3-6ab3-483b-a392-7a8feb7a9e33" variableName="assessments"/>
-		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="assessmentsWithSkills" doc:id="cd4eac54-c80a-4f5b-b981-b0bd613da417" variableName="assessmentsWithSkills"/>
-		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="assessmentsComplete" doc:id="312a4006-996b-4bb7-856d-ca48d6b66f58" variableName="assessmentsComplete"/>
+		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="output" doc:id="78b5f205-a971-4e0f-80f8-716dacedf55a" variableName="output" />
+		<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="completeResult" doc:id="144d34d6-a37b-4086-9cb4-0edc4ced6cb7" variableName="completeResult"/>
 		<foreach doc:name="For Each" doc:id="c75369da-6eac-42f9-bee9-cd0ef41b5a14" collection="#[vars.batchIds]">
+			<set-variable doc:name="batch-info" doc:id="b47083f9-1c0a-4d98-9736-4d83db849ed4" variableName="batch-info" value="#[%dw 2.0&#10;output application/dw&#10;---&#10;{}]" />
+			<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="qcNotes" doc:id="82d24e00-c848-44a4-88f4-00068c54e6a9" variableName="qcNotes" />
+			<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="notesWithSkills" doc:id="687817d6-aa5a-4e2e-91c7-60af485dc8f1" variableName="notesWithSkills" />
+			<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="assessments" doc:id="13cd11f3-6ab3-483b-a392-7a8feb7a9e33" variableName="assessments" />
+			<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="assessmentsWithSkills" doc:id="cd4eac54-c80a-4f5b-b981-b0bd613da417" variableName="assessmentsWithSkills" />
+			<set-variable value="#[%dw 2.0&#10;output application/json&#10;---&#10;[]]" doc:name="assessmentsComplete" doc:id="312a4006-996b-4bb7-856d-ca48d6b66f58" variableName="assessmentsComplete" />
 			<scatter-gather doc:name="Scatter-Gather" doc:id="c62dea74-0feb-4acf-b2cb-b7cc7250eb06" >
 				<route >
 					<training-mastersapi:get-batches-training-version doc:name="Get batches (training version)" doc:id="a10c7f11-f5a4-44fe-9885-8856ea4905f8" config-ref="trainingMasterSapiConfig" batch-id="#[payload]"/>
@@ -113,6 +115,16 @@ vars."batch-info" ++ payload]]></ee:set-variable>
 output application/dw
 ---
 vars."batch-info" ++ {qcNotes: vars.notesWithSkills} ++ {assessments: vars.assessmentsComplete}]]></ee:set-variable>
+				</ee:variables>
+			</ee:transform>
+			<ee:transform doc:name="compile to vars.completeResult" doc:id="4a7e1268-873b-4c7b-98ae-7564faadbfc9" >
+				<ee:message >
+				</ee:message>
+				<ee:variables >
+					<ee:set-variable variableName="completeResult" ><![CDATA[%dw 2.0
+output application/dw
+---
+vars.completeResult << vars."output"]]></ee:set-variable>
 				</ee:variables>
 			</ee:transform>
 		</foreach>
