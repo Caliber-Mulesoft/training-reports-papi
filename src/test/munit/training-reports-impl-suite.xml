@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="training-reports-impl-suite.xml" />
+  <munit:test name="get-report-by-email-test" doc:id="6c575e17-d9ec-40c0-85f9-3e78f2a6b08f" >
+    <munit:behavior >
+      <munit-tools:mock-when doc:name="Mock batchIds" doc:id="3f68f579-e3f9-4592-9f5f-2c71a38c233a" processor="set-payload">
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="f7aafac4-c68a-48a7-946c-1f1c4e050eab" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+        <munit-tools:then-return >
+          <munit-tools:payload value="#[output application/java --- readUrl('classpath://getreportbyemailtest/mock_payload2.dwl')]" mediaType="application/java" encoding="UTF-8" />
+        </munit-tools:then-return>
+      </munit-tools:mock-when>
+      <munit-tools:mock-when doc:name="Mock vars.output to payload" doc:id="65529199-ca86-4047-91c3-84f18f33e5b7" processor="set-payload">
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="d74e7d0d-f44c-4f25-9db4-6d7b30216751" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+        <munit-tools:then-return >
+          <munit-tools:payload value="#[output application/json --- readUrl('classpath://getreportbyemailtest/mock_payload3.dwl')]" mediaType="application/json" encoding="UTF-8" />
+        </munit-tools:then-return>
+      </munit-tools:mock-when>
+      <munit:set-event doc:name="Set Input" doc:id="cf4d95bf-983d-43b0-a9b8-dc240db01c88" >
+        <munit:payload value="#[readUrl('classpath://getreportbyemailtest/set-event_payload1.dwl')]" encoding="UTF-8" />
+        <munit:attributes value="#[readUrl('classpath://getreportbyemailtest/set-event_attributes1.dwl')]" />
+        <munit:variables >
+          <munit:variable key="outboundHeaders" value="#[readUrl('classpath://getreportbyemailtest/set-event_variable_2.dwl')]" />
+          <munit:variable key="trainerEmail" value="#[output application/java --- readUrl('classpath://getreportbyemailtest/set-event_variable_3.dwl')]" encoding="UTF-8" mediaType="application/java" />
+        </munit:variables>
+      </munit:set-event>
+    </munit:behavior>
+    <munit:execution >
+      <flow-ref doc:name="Flow-ref to get-report-by-email" doc:id="57bb00e2-0a76-4a69-bf1c-5441bb875f8e" name="get-report-by-email"/>
+    </munit:execution>
+    <munit:validation >
+      <munit-tools:assert doc:name="Assert payload" doc:id="d09606a5-afe4-410a-9c0f-e26f4eea5a46" message="The payload does not match">
+        <munit-tools:that ><![CDATA[#[%dw 2.0
+import getreportbyemailtest::assert_expression_payload1
+---
+assert_expression_payload1::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+      </munit-tools:assert>
+      <munit-tools:verify-call doc:name="Verify get-batch-info" doc:id="185f919a-c016-49d9-b6b2-6f50676f2f11" processor="flow-ref" times="1">
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="9889afda-23c3-4f4a-82a5-c096f99d87f2" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+      <munit-tools:verify-call doc:name="Verify get-batch-ids" doc:id="27f4fdaf-154c-41ab-8586-d5a22f9228fe" processor="flow-ref" times="1">
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="78462453-deca-423d-a07e-2cdfebfd1744" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+      <munit-tools:verify-call doc:name="Verify get-trainer-info" doc:id="4f0fd972-4721-413f-b142-b3293a554b39" processor="flow-ref" times="1">
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="abb23b99-c70a-4d4d-a44c-c2bb565bc033" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+    </munit:validation>
+  </munit:test>
+
+</mule>
