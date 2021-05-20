@@ -1,32 +1,35 @@
-# training-reports-papi
+# Training Reports Process api
 
-# PROJECT NAME
-  Trainer Reports papi
-
-# ABOUT THE PROJECT
+## ABOUT THE PROJECT
   The Trainer Reports process API is designed to consume the Trainer Reports system API
   for the purpose of returning comprehensive data about trainers and their batches.
   The information returned is collected into two flexible endpoints that can be consumed
   to generated useful reports for further batch performance analysis.
 
-# BUILT WITH
-  Anypoint Platform:
-    Anypoint Studio
-    Anypoint Design Center
-    Anypoint Exchange
+## BUILT WITH
+- Mulesoft
+- MUnit
+- Log4J
+- Maven
+- Anypoint Platform
+- Anypoint Studio
+- REST
+- Git
+- AWS
   
-# GETTING STARTED
-  Please refer to the SETUP document for more detailed installation steps.
+## GETTING STARTED
+- Go to ${users.home}/m2 folder:
+- Rename or delete repository
+- Rename settings.xml
+- git clone https://github.com/Caliber-Mulesoft/training-reports-papi.git
+- Import project AssessmentsProcessAPI into Anypoint Studio 
+  (the folder containing the project has the same name).
+- Deploy to CloudHub (Anypoint Platform)
+- Please refer to the SETUP document for more detailed installation steps.
 
-# PREREQUISITES
-  N/A
+## USAGE EXAMPLES
 
-# ENVIRONMENT VARIABLES
-  N/A
-
-# USAGE EXAMPLES
-
-## /report/{trainerEmail}
+- /report/{trainerEmail}
   Get Report by Email - Gets a comprehensive report concerning trainer/batch information from a given trainer email address.
 
   example URI parameter (required): mock1022.employee870e1a69-f385-4cdb-9c59-986de917eca4@mock.com
@@ -63,22 +66,18 @@
     Becuase of the size of output, the JSON will not be listed here.
     For an in-depth JSON example of the data returned, see the example.json document included.
 
-## /report/utilization
+- /report/utilization
   Get trainer utilization - Gets the percentage of trainers currently training a batch.
 
-  example output (JSON):
-    {
-      "message": "Trainer utilization: 59%"
-    }
-
-# ROADMAP
-  N/A
-
-# ADDITIONAL MATERIAL
-  N/A
+Example response:
+```
+{
+  "message": "Trainer utilization: 59%"
+}
+```
 
 # AUTHORS
-  Carlos Quimson
-  Divyesh Patel
-  Keyur Patel
-  Josh Cushing
+- Carlos Quimson
+- Divyesh Patel
+- Keyur Patel
+- Josh Cushing
