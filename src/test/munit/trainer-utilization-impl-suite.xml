@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="trainer-utilization-impl-suite.xml" />
+  <munit:test name="get-utilization-test1" doc:id="337536f1-107d-4dba-b54b-9a72e5b8e7c2" >
+    <munit:behavior >
+      <munit-tools:mock-when doc:name="Mock Get all trainers" doc:id="95f579b6-0edf-47df-adc5-7a16bb22c5cd" processor="training-mastersapi:get-all-trainers">
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="a5f460c5-d55a-4b0e-867a-3e896243ab05" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+        <munit-tools:then-return >
+          <munit-tools:payload value="#[output application/json --- readUrl('classpath://getutilizationtest1/mock_payload.dwl')]" mediaType="application/json" />
+          <munit-tools:attributes value="#[readUrl('classpath://getutilizationtest1/mock_attributes.dwl')]" />
+          <munit-tools:variables >
+            <munit-tools:variable key="distinctBatch" value="#[readUrl('classpath://getutilizationtest1/mock_variable_.dwl')]" encoding="UTF-8" />
+            <munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://getutilizationtest1/mock_variable_1.dwl')]" />
+            <munit-tools:variable key="distinctTrainer" value="#[readUrl('classpath://getutilizationtest1/mock_variable_2.dwl')]" encoding="UTF-8" />
+          </munit-tools:variables>
+        </munit-tools:then-return>
+      </munit-tools:mock-when>
+      <munit-tools:mock-when doc:name="Mock Get current batches" doc:id="88024052-2af5-431c-bbc2-67bd138a3ca7" processor="training-mastersapi:get-current-batches">
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="21b7bd67-ecd2-49bf-9145-f75fe4cd02cc" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+        <munit-tools:then-return >
+          <munit-tools:payload value="#[output application/json --- readUrl('classpath://getutilizationtest1/mock_payload1.dwl')]" mediaType="application/json" />
+          <munit-tools:attributes value="#[readUrl('classpath://getutilizationtest1/mock_attributes1.dwl')]" />
+          <munit-tools:variables >
+            <munit-tools:variable key="distinctBatch" value="#[readUrl('classpath://getutilizationtest1/mock_variable_3.dwl')]" encoding="UTF-8" />
+            <munit-tools:variable key="outboundHeaders" value="#[readUrl('classpath://getutilizationtest1/mock_variable_4.dwl')]" />
+            <munit-tools:variable key="distinctTrainer" value="#[readUrl('classpath://getutilizationtest1/mock_variable_5.dwl')]" encoding="UTF-8" />
+          </munit-tools:variables>
+        </munit-tools:then-return>
+      </munit-tools:mock-when>
+      <munit:set-event doc:name="Set Input" doc:id="a5a96d1d-c797-4ec4-b52d-0cc7402857ca" >
+        <munit:payload value="#[readUrl('classpath://getutilizationtest1/set-event_payload1.dwl')]" encoding="UTF-8" />
+        <munit:attributes value="#[readUrl('classpath://getutilizationtest1/set-event_attributes1.dwl')]" />
+        <munit:variables >
+          <munit:variable key="outboundHeaders" value="#[readUrl('classpath://getutilizationtest1/set-event_variable_1.dwl')]" />
+        </munit:variables>
+      </munit:set-event>
+    </munit:behavior>
+    <munit:execution >
+      <flow-ref doc:name="Flow-ref to get-utilization" doc:id="501e2827-834b-432e-bd60-51f423d44de7" name="get-utilization"/>
+    </munit:execution>
+    <munit:validation >
+      <munit-tools:assert doc:name="Assert payload" doc:id="71086d50-a07c-4259-8020-52fae415a181" message="The payload does not match">
+        <munit-tools:that ><![CDATA[#[%dw 2.0
+import getutilizationtest1::assert_expression_payload1
+---
+assert_expression_payload1::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+      </munit-tools:assert>
+      <munit-tools:verify-call doc:name="Verify listTrainers" doc:id="712f9299-e5c3-4172-857e-487dc5d2d95f" processor="set-variable" times="1">
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="525f6946-8c8c-47dd-8806-1db92ddf52df" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+      <munit-tools:verify-call doc:name="Verify listBatches" doc:id="6d62b391-80b1-4350-91fc-3a52093dd248" processor="set-variable" times="1">
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="40baa358-a016-4e59-accd-0ddcde443f00" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+      <munit-tools:verify-call doc:name="Verify Transform Message" doc:id="15b5cdbf-d7a3-48ef-bd65-a15c4f140138" processor="ee:transform" times="1">
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="cea80a14-0b33-408d-ae01-3f246a508da6" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+      <munit-tools:verify-call doc:name="Verify Transform Message" doc:id="6139ddf7-210a-442f-9114-50e48d7f2aae" processor="ee:transform" times="12">
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="0011fbb4-a6c1-4c9d-84e7-baef7f547e66" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+      <munit-tools:verify-call doc:name="Verify distinctBatch" doc:id="176a2f40-3243-461b-8763-49427d1c5ce6" processor="ee:transform" times="1">
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="c914684b-fbac-4dae-9198-a529f81936d1" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+      <munit-tools:verify-call doc:name="Verify distinctTrainer" doc:id="26405ee0-7891-4ee0-8dfc-55f91faefacd" processor="set-variable" times="1">
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="a32fe647-f50e-40e6-b737-e4e6c3599c65" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+      <munit-tools:verify-call doc:name="Verify distinctBatch" doc:id="8a1da1e8-45ce-420f-b63f-b3dee3fdb89f" processor="set-variable" times="1">
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="5c98a5c8-de8a-448f-8666-7721a2b540e9" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+      <munit-tools:verify-call doc:name="Verify Transform Message" doc:id="3f458e2f-12e7-41d7-96af-34dd10fada9a" processor="ee:transform" times="30">
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="d6f8d2c9-39bb-4a8e-9ac6-a808c0dbdb6f" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+      <munit-tools:verify-call doc:name="Verify Transform Message" doc:id="39d4e121-f702-4232-9d31-6b3be990588e" processor="ee:transform" times="1">
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="0d05b2f0-36ce-4f87-bd20-80f8e75c7b25" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+      <munit-tools:verify-call doc:name="Verify Transform Message" doc:id="d02e75d5-a3ff-461c-95ec-04ee0875b076" processor="ee:transform" times="1">
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="2ca82221-7024-472a-91d9-e016909ac887" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+      <munit-tools:verify-call doc:name="Verify distinctTrainer" doc:id="b78c703b-e3b0-44b6-b2a0-193c389a7d96" processor="ee:transform" times="1">
+        <munit-tools:with-attributes >
+          <munit-tools:with-attribute whereValue="d3df6a0e-c2ea-4f99-a09f-c9e0c3ef72a5" attributeName="doc:id" />
+        </munit-tools:with-attributes>
+      </munit-tools:verify-call>
+    </munit:validation>
+  </munit:test>
+
+</mule>
